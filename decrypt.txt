@@ -1,0 +1,65 @@
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+def decrypt(encrypted_text, secret):
+    """
+    AES ECB 모드로 암호화된 텍스트를 복호화합니다.
+    
+    Args:
+        encrypted_text (str): Base64로 인코딩된 암호화된 텍스트
+    
+    Returns:
+        str: 복호화된 평문 텍스트
+    """
+    # Base64 디코딩
+    encrypted_bytes = base64.b64decode(encrypted_text)
+    
+    # 키 생성
+    key = get_key(secret)
+    
+    # AES 복호화 객체 생성 (ECB 모드)
+    cipher = AES.new(key, AES.MODE_ECB)
+    
+    # 복호화
+    decrypted_bytes = cipher.decrypt(encrypted_bytes)
+    
+    # PKCS7 패딩 제거
+    unpadded_bytes = unpad(decrypted_bytes, AES.block_size)
+    
+    # UTF-8 문자열로 변환
+    return unpadded_bytes.decode('utf-8')
+
+def get_key(secret):
+    """
+    비밀 문자열을 AES 키로 변환합니다.
+    키 길이에 따라 적절한 크기로 조정합니다.
+    
+    Args:
+        secret (str): 비밀 문자열
+    
+    Returns:
+        bytes: AES 키 (16, 24, 또는 32 바이트)
+    """
+    # 문자열을 UTF-8 바이트로 변환
+    key_bytes = secret.encode('utf-8')
+    length = len(key_bytes)
+    
+    # 키 길이에 따라 조정
+    if length < 16:
+        # 16바이트보다 작으면 16바이트로 패딩
+        adjusted_key = key_bytes[:16].ljust(16, b'\x00')
+    elif length > 16 and length < 24:
+        # 16바이트보다 크고 24바이트보다 작으면 24바이트로 조정
+        adjusted_key = key_bytes[:24].ljust(24, b'\x00')
+    elif length > 24 and length < 32:
+        # 24바이트보다 크고 32바이트보다 작으면 32바이트로 조정
+        adjusted_key = key_bytes[:32].ljust(32, b'\x00')
+    elif length >= 32:
+        # 32바이트 이상이면 32바이트로 잘라내기
+        adjusted_key = key_bytes[:32]
+    else:
+        # 정확히 16바이트면 그대로 사용
+        adjusted_key = key_bytes
+    
+    return adjusted_key

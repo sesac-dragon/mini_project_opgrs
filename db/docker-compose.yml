@@ -1,0 +1,23 @@
+version: '3' 
+
+name: 'mini_pjt'
+
+services: 
+    mariadb:
+        image: mariadb:10.6
+        ports:
+            - "3307:3306"
+        container_name: mariadb
+        volumes:
+            # 데이터 유지
+            - ./db/conf.d:/etc/mysql/conf.d
+            - ./db/data:/var/lib/mysql
+            # 초기 테이블 세팅
+            - ./db/initdb.d:/docker-entrypoint-initdb.d
+        environment:
+            TZ: Asia/Seoul
+            MARIADB_USER: opgrs
+            MARIA_DB_PASSWORD: test1234
+            MARIADB_ROOT_PASSWORD: test1234
+            MARIADB_DATABASE: study_db
+        restart: always
