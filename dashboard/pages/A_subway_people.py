@@ -8,7 +8,7 @@ def main():
     st.title('지하철 유동인구')
 
     # CSV 불러오기
-    data = pd.read_csv('C:\\Users\\opgrs\\OneDrive\\Desktop\\mini_project\\서울시 지하철 호선별 역별 시간대별 승하차 인원 정보2.csv')
+    data = pd.read_csv('C:\\Users\\opgrs\\OneDrive\\Desktop\\mini_project\\dashboard\\data\\서울시 지하철 호선별 역별 시간대별 승하차 인원 정보2.csv')
     st.dataframe(data)
 
     st.title("서울시 지하철역 유동인구 변화 분석")
@@ -91,66 +91,4 @@ def main():
             st.line_chart(table.loc[select_top_station].drop("증감폭"))
 
 
-
-
-# sql로 전체 유동인구 구해서 계산
-conn = pymysql.connect(
-    host='localhost',
-    user = 'opgrs',
-    password='test1234',
-    db = 'mini_project',
-    charset = 'utf8mb4'
-)
-
-years_data = list(range(2015,2025))
-years_data_in = []
-
-for y in years_data:
-    table = f"subway_{y}"
-
-    query = f"""
-        SELECT
-            SUM(`04-05시 승차인원` + `04-05시 하차인원` +
-                   `05-06시 승차인원` + `05-06시 하차인원` +
-                   `06-07시 승차인원` + `06-07시 하차인원` +
-                   `07-08시 승차인원` + `07-08시 하차인원` +
-                   `08-09시 승차인원` + `08-09시 하차인원` +
-                   `09-10시 승차인원` + `09-10시 하차인원` +
-                   `10-11시 승차인원` + `10-11시 하차인원` +
-                   `11-12시 승차인원` + `11-12시 하차인원` +
-                   `12-13시 승차인원` + `12-13시 하차인원` +
-                   `13-14시 승차인원` + `13-14시 하차인원` +
-                   `14-15시 승차인원` + `14-15시 하차인원` +
-                   `15-16시 승차인원` + `15-16시 하차인원` +
-                   `16-17시 승차인원` + `16-17시 하차인원` +
-                   `17-18시 승차인원` + `17-18시 하차인원` +
-                   `18-19시 승차인원` + `18-19시 하차인원` +
-                   `19-20시 승차인원` + `19-20시 하차인원` +
-                   `20-21시 승차인원` + `20-21시 하차인원` +
-                   `21-22시 승차인원` + `21-22시 하차인원` +
-                   `22-23시 승차인원` + `22-23시 하차인원` +
-                   `23-24시 승차인원` + `23-24시 하차인원` +
-                   `00-01시 승차인원` + `00-01시 하차인원` +
-                   `01-02시 승차인원` + `01-02시 하차인원` +
-                   `02-03시 승차인원` + `02-03시 하차인원` +
-                   `03-04시 승차인원` + `03-04시 하차인원`)
-                   AS 총유동인구
-                   FROM subway_{y}
-            """
-    
-    df = pd.read_sql(query, conn)
-    total = int(df.loc[0, '총유동인구'])
-    years_data_in.append({"연도": y, "총유동인구": total})
-
-
-conn.close()
-
-year_df = pd.DataFrame(years_data_in)
-
-st.subheader("연도별 유동인구")
-st.line_chart(year_df.set_index("연도"))
-
-
-
-if __name__ == "__main__":
-    main()
+main()
